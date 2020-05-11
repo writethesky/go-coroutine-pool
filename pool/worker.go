@@ -1,5 +1,7 @@
 package pool
 
+import "time"
+
 // Worker Worker struct
 type Worker struct {
 	isFree   bool
@@ -30,11 +32,17 @@ func (w *Worker) runTask(task func()) bool {
 
 // run task（real）
 func (w *Worker) run() {
+
 	for {
-		task := <-w.taskChan
-		w.isFree = false
-		task()
-		w.isFree = true
+		select {
+		case task := <-w.taskChan:
+			w.isFree = false
+			task()
+			w.isFree = true
+		default:
+
+		}
+		time.Sleep(time.Millisecond)
 	}
 
 }
